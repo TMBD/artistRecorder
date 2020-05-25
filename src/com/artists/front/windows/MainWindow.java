@@ -15,6 +15,7 @@ import javax.swing.ButtonGroup;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -27,6 +28,7 @@ import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Dimension;
 
+import com.artist.export.CsvExporter;
 import com.artists.beans.*;
 import com.artists.dbmanager.DbManager;
 
@@ -123,6 +125,12 @@ public class MainWindow {
 				panel_ArtistFields.setVisible(true);
 				isSearchingArtist = false;
 				lbl_ArtistDetails_Title.setText("ADD ARTIST");
+				
+//				for (int i = 1000; i < 10000; i++) { //887
+//					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//					Artist a = new Artist("Artist name "+i+" - "+timestamp, i, new Langage("English"));
+//					if(a.addToDb()) System.out.println(i);
+//				}
 			}
 		});
 		btn_AddArtist.addActionListener(new ActionListener() {
@@ -149,6 +157,18 @@ public class MainWindow {
 		menuBar.add(btn_ManageLangage);
 		
 		JButton btn_ExportData = new JButton("Export data");
+		btn_ExportData.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				ArrayList<Artist> allArtists = Artist.searchAllArtists();
+				if(allArtists != null) {
+					if(CsvExporter.createCsvFile(allArtists)) {
+						JOptionPane.showMessageDialog(null, "Artists has been exported successfully !", "Info", JOptionPane.INFORMATION_MESSAGE);
+					}else JOptionPane.showMessageDialog(null, "An error has occured while trying to create the file ! \n Please make sure that it isn't open or being used by another process !", "Error", JOptionPane.ERROR_MESSAGE);
+				}else JOptionPane.showMessageDialog(null, "An error has occured while trying to access the database !", "Error", JOptionPane.ERROR_MESSAGE);
+				
+			}
+		});
 		btn_ExportData.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
@@ -279,6 +299,7 @@ public class MainWindow {
 		rdbtn_SearchArtistByVoiceId.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		rdbtn_SearchArtistByVoiceId.addMouseListener(new MouseAdapter() {
 		});
+		rdbtn_SearchArtistByVoiceId.setSelected(true);
 		rdbtngrp_SearchArtistBy.add(rdbtn_SearchArtistByVoiceId);
 		
 		rdbtn_SearchArtistByName = new JRadioButton("Search by name");
@@ -288,7 +309,6 @@ public class MainWindow {
 		rdbtn_SearchArtistByName.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		rdbtn_SearchArtistByName.addMouseListener(new MouseAdapter() {
 		});
-		rdbtn_SearchArtistByName.setSelected(true);
 		rdbtngrp_SearchArtistBy.add(rdbtn_SearchArtistByName);
 		
 		panel_SearchArtistBy = new Panel();

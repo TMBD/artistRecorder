@@ -29,11 +29,15 @@ public class DbManager {
 			"	"+ID+"	INTEGER NOT NULL PRIMARY KEY IDENTITY ," + 
 			"	"+NAME+"	VARCHAR(200) NOT NULL ," + 
 			"	"+NUMBER+"	INTEGER NOT NULL ," + 
-			"	"+LANGAGE+"	VARCHAR(200) NOT NULL);";
+			"	"+LANGAGE+"	VARCHAR(200) NOT NULL, "
+					+ "UNIQUE("+NAME+"),"
+					+ "UNIQUE("+NUMBER+"));";
 	
 	private final static String TABLE_LANGAGES_CREATER = "CREATE TABLE IF NOT EXISTS "+LANGAGES_TB+" (" + 
 			"	"+ID+"	INTEGER NOT NULL PRIMARY KEY IDENTITY," + 
-			"	"+LANGAGE+"	VARCHAR(200) NOT NULL );";
+			"	"+LANGAGE+"	VARCHAR(200) NOT NULL, "
+					+ "UNIQUE("+LANGAGE+"));";
+	
 	private final static String ARTIST_NAME_UNIQUE_CONSTRAINT = "ALTER TABLE " +ARTISTS_TB+ " ADD CONSTRAINT UNIQUE ("+NAME+");";
 	
 	private final static String ARTIST_NUMBER_UNIQUE_CONSTRAINT = "ALTER TABLE " +ARTISTS_TB+ " ADD CONSTRAINT UNIQUE ("+NUMBER+");";
@@ -122,7 +126,7 @@ public class DbManager {
         }
         System.out.println("Db created.");
         closeConnectionToBd();
-        boolean succededQueryForArtistsTable = false;
+        //boolean succededQueryForArtistsTable = false;
         boolean succededQueryForLangagesTable = dbExecuter(TABLE_LANGAGES_CREATER);
         
         if(succededQueryForLangagesTable) return dbExecuter(TABLE_ARTISTS_CREATER);
