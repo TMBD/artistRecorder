@@ -15,7 +15,6 @@ import javax.swing.ButtonGroup;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -56,6 +55,7 @@ public class MainWindow {
 	private ArrayList<Langage> allLangages = new ArrayList<Langage>();
 	private boolean dbExisted;
 	private boolean isSearchingArtist = true;
+	private JTextField tf_searchLangage;
 
 	/**
 	 * Launch the application.
@@ -67,7 +67,6 @@ public class MainWindow {
 					MainWindow window = new MainWindow();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
-					e.printStackTrace();
 				}
 			}
 		});
@@ -103,6 +102,8 @@ public class MainWindow {
 				rdbtn_SearchArtistByVoiceId.setVisible(true);
 				panel_SearchArtistBy.setVisible(true);
 				panel_ArtistFields.setVisible(true);
+				tf_searchLangage.setVisible(true);
+				cb_Langage.setVisible(false);
 				isSearchingArtist = true;
 				lbl_ArtistDetails_Title.setText("SEARCH ARTIST");
 				
@@ -123,8 +124,11 @@ public class MainWindow {
 				rdbtn_SearchArtistByName.setVisible(false);
 				rdbtn_SearchArtistByVoiceId.setVisible(false);
 				panel_ArtistFields.setVisible(true);
+				tf_searchLangage.setVisible(false);
+				cb_Langage.setVisible(true);
 				isSearchingArtist = false;
 				lbl_ArtistDetails_Title.setText("ADD ARTIST");
+				tf_searchLangage.setText("");
 				
 //				for (int i = 1000; i < 10000; i++) { //887
 //					Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -139,7 +143,7 @@ public class MainWindow {
 		});
 		menuBar.add(btn_AddArtist);
 		
-		JButton btn_ManageLangage = new JButton("Manage langage");
+		JButton btn_ManageLangage = new JButton("Manage languages");
 		btn_ManageLangage.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -148,6 +152,7 @@ public class MainWindow {
 				rdbtn_SearchArtistByName.setVisible(false);
 				rdbtn_SearchArtistByVoiceId.setVisible(false);
 				panel_ManageLangage.setVisible(true);
+				tf_searchLangage.setText("");
 			}
 		});
 		btn_ManageLangage.addActionListener(new ActionListener() {
@@ -164,6 +169,7 @@ public class MainWindow {
 				if(allArtists != null) {
 					if(CsvExporter.createCsvFile(allArtists)) {
 						JOptionPane.showMessageDialog(null, "Artists has been exported successfully !", "Info", JOptionPane.INFORMATION_MESSAGE);
+						tf_searchLangage.setText("");
 					}else JOptionPane.showMessageDialog(null, "An error has occured while trying to create the file ! \n Please make sure that it isn't open or being used by another process !", "Error", JOptionPane.ERROR_MESSAGE);
 				}else JOptionPane.showMessageDialog(null, "An error has occured while trying to access the database !", "Error", JOptionPane.ERROR_MESSAGE);
 				
@@ -191,7 +197,7 @@ public class MainWindow {
 		lbl_Name.setBounds(49, 229, 109, 24);
 		panel_ArtistFields.add(lbl_Name);
 		
-		JLabel lbl_Langage = new JLabel("Langage");
+		JLabel lbl_Langage = new JLabel("Language");
 		lbl_Langage.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lbl_Langage.setBounds(49, 363, 75, 24);
 		panel_ArtistFields.add(lbl_Langage);
@@ -202,9 +208,10 @@ public class MainWindow {
 		panel_ArtistFields.add(tf_VoiceNumber);
 		tf_VoiceNumber.setColumns(10);
 		
-		cb_Langage = new JComboBox();
+		cb_Langage = new JComboBox<String>();
 		cb_Langage.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		cb_Langage.setBounds(49, 389, 370, 35);
+		cb_Langage.setVisible(false);
 		panel_ArtistFields.add(cb_Langage);
 		
 		tf_Name = new JTextField();
@@ -229,26 +236,26 @@ public class MainWindow {
 				Artist artist = null;
 				if(isSearchingArtist) {
 					if(rdbtn_SearchArtistByName.isSelected()) {
-						if(name.isBlank() == false) {
+						if(isBlanc(name) == false) {
 							artist = Artist.searchByName(name);
 							if(artist != null) {
 								tf_VoiceNumber.setText(String.valueOf(artist.getNumber()));
 								tf_Name.setText(artist.getName());
-								cb_Langage.setSelectedItem(artist.getLangage().getLangage());
+								tf_searchLangage.setText(artist.getLangage().getLangage());
 							}else JOptionPane.showMessageDialog(null, "No artist named "+name+" has been found !", "Info", JOptionPane.INFORMATION_MESSAGE);
 							
 						}else JOptionPane.showMessageDialog(null, "Please fill the name of the artist you are searching for !", "Alert", JOptionPane.WARNING_MESSAGE);
 						
 					}
 					else{
-						if(numberStr.isBlank() == false) {
+						if(isBlanc(numberStr) == false) {
 							try{
 								number = Long.parseLong(numberStr);
 								artist = Artist.searchByNumber(number);
 								if(artist != null) {
 									tf_VoiceNumber.setText(String.valueOf(artist.getNumber()));
 									tf_Name.setText(artist.getName());
-									cb_Langage.setSelectedItem(artist.getLangage().getLangage());
+									tf_searchLangage.setText(artist.getLangage().getLangage());
 								}else JOptionPane.showMessageDialog(null, "No artist with the voice number "+numberStr+" has been found !", "Info", JOptionPane.INFORMATION_MESSAGE);
 							} catch (NumberFormatException  ex) {
 								JOptionPane.showMessageDialog(null, "Please fill a correct artist voice number !", "Alert", JOptionPane.WARNING_MESSAGE);
@@ -258,7 +265,7 @@ public class MainWindow {
 					
 				} 
 				else { //isSearchingArtist == false (i.e. add artist)
-					if(numberStr.isBlank() == false && name.isBlank() == false) {
+					if(isBlanc(numberStr) == false && isBlanc(name) == false) {
 						if(cb_Langage.getSelectedIndex()>-1) {
 							String langageStr = cb_Langage.getSelectedItem().toString();
 							try{
@@ -279,7 +286,7 @@ public class MainWindow {
 							} catch (NumberFormatException  ex) {
 								JOptionPane.showMessageDialog(null, "Please fill a correct artist voice number !", "Alert", JOptionPane.WARNING_MESSAGE);
 							}
-						}else JOptionPane.showMessageDialog(null, "The langage you selected doesn't existe, you have to add it before !", "Alert", JOptionPane.WARNING_MESSAGE);
+						}else JOptionPane.showMessageDialog(null, "The language you selected doesn't existe, you have to add it before !", "Alert", JOptionPane.WARNING_MESSAGE);
 					}else JOptionPane.showMessageDialog(null, "Please fill correctly all the fields !", "Alert", JOptionPane.WARNING_MESSAGE);				
 				}
 			}
@@ -348,32 +355,38 @@ public class MainWindow {
 		});
 		btn_DeleteArtist.setForeground(new Color(255, 0, 0));
 		
+		tf_searchLangage = new JTextField();
+		tf_searchLangage.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		tf_searchLangage.setColumns(10);
+		tf_searchLangage.setBounds(49, 389, 370, 35);
+		panel_ArtistFields.add(tf_searchLangage);
+		
 		panel_ManageLangage = new JPanel();
 		panel_ManageLangage.setBounds(0, 0, 478, 523);
 		frame.getContentPane().add(panel_ManageLangage);
 		panel_ManageLangage.setLayout(null);
 		panel_ManageLangage.setVisible(false);
 		
-		JButton btn_AddLangage = new JButton("Add langage");
+		JButton btn_AddLangage = new JButton("Add language");
 		btn_AddLangage.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(tf_AddLangage.getText().isBlank()==false) {
+				if(isBlanc(tf_AddLangage.getText())==false) {
 					Langage langage = new Langage(tf_AddLangage.getText());
 					
 					if(containsLangage(langage) == false) {
 						if(langage.addToDb()) {
-							JOptionPane.showMessageDialog(null, "The langage hase been successfully added !", "Info", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "The language hase been successfully added !", "Info", JOptionPane.INFORMATION_MESSAGE);
 							allLangages.add(langage);
 							loadLangageToLangageBoxes(langage);
 							tf_AddLangage.setText("");
 						}
-						else JOptionPane.showMessageDialog(null, "An error has occured while trying to add the langage !", "Error", JOptionPane.ERROR_MESSAGE);
-					}else JOptionPane.showMessageDialog(null, "The langage already exists !", "Alert", JOptionPane.WARNING_MESSAGE);
+						else JOptionPane.showMessageDialog(null, "An error has occured while trying to add the language !", "Error", JOptionPane.ERROR_MESSAGE);
+					}else JOptionPane.showMessageDialog(null, "The language already exists !", "Alert", JOptionPane.WARNING_MESSAGE);
 					
 				}
 				else {
-					JOptionPane.showMessageDialog(null, "The langage input is empty !", "Alert", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "The language input is empty !", "Alert", JOptionPane.WARNING_MESSAGE);
 				}
 				
 			}
@@ -389,16 +402,16 @@ public class MainWindow {
 			public void mouseClicked(MouseEvent e) {
 				Langage langage = new Langage(cb_DeleteLangage.getSelectedItem().toString());
 				if(containsLangage(langage) == true) {
-					int choice = JOptionPane.showConfirmDialog(null, "Do you really want to delete this langage ?", "Alert", JOptionPane.YES_NO_OPTION);
+					int choice = JOptionPane.showConfirmDialog(null, "Do you really want to delete this language ?", "Alert", JOptionPane.YES_NO_OPTION);
 					if(choice == JOptionPane.OK_OPTION) {
 						if(langage.deleteFromDb()) {
-							JOptionPane.showMessageDialog(null, "The langage hase been added successfully deleted !", "Info", JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "The language hase been added successfully deleted !", "Info", JOptionPane.INFORMATION_MESSAGE);
 							removeLangageFromAllLangages(langage);
 							loadAllLangagesToLangageBoxes(allLangages);
 						}
-						else JOptionPane.showMessageDialog(null, "An error has occured while trying to delete the langage from the database !", "Error", JOptionPane.ERROR_MESSAGE);
+						else JOptionPane.showMessageDialog(null, "An error has occured while trying to delete the language from the database !", "Error", JOptionPane.ERROR_MESSAGE);
 					}
-				}else JOptionPane.showMessageDialog(null, "This langage doesn't exist !", "Alert", JOptionPane.WARNING_MESSAGE);;
+				}else JOptionPane.showMessageDialog(null, "This language doesn't exist !", "Alert", JOptionPane.WARNING_MESSAGE);;
 			}
 		});
 		btn_DeleteLangage.setFont(new Font("Tahoma", Font.BOLD, 15));
@@ -413,17 +426,17 @@ public class MainWindow {
 		panel_ManageLangage.add(tf_AddLangage);
 		tf_AddLangage.setColumns(10);
 		
-		cb_DeleteLangage = new JComboBox();
+		cb_DeleteLangage = new JComboBox<String>();
 		cb_DeleteLangage.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		cb_DeleteLangage.setBounds(51, 389, 370, 35);
 		panel_ManageLangage.add(cb_DeleteLangage);
 		
-		JLabel lbl_AddLangage = new JLabel("Langage to add");
+		JLabel lbl_AddLangage = new JLabel("Language to add");
 		lbl_AddLangage.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lbl_AddLangage.setBounds(51, 99, 152, 29);
 		panel_ManageLangage.add(lbl_AddLangage);
 		
-		JLabel lbl_DeleteLangage = new JLabel("Langage to delete");
+		JLabel lbl_DeleteLangage = new JLabel("Language to delete");
 		lbl_DeleteLangage.setFont(new Font("Tahoma", Font.BOLD, 15));
 		lbl_DeleteLangage.setBounds(51, 359, 170, 29);
 		panel_ManageLangage.add(lbl_DeleteLangage);
@@ -484,5 +497,13 @@ public class MainWindow {
 			}
 		}
 		return false;
+	}
+	
+	public static boolean isBlanc(String str) {
+		if(str.length() <= 0) return true;
+		for (int i = 0; i < str.length(); i++) {
+			if(str.charAt(i) != ' ') return false;
+		}
+		return true;
 	}
 }

@@ -4,20 +4,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.artists.beans.Artist;
 
 public class CsvExporter {
 
-	private static final String fileName = "Artists.csv";
+	private static final String fileName = "Artists";
 	private static final String numberCol = "Number";
 	private static final String nameCol = "Name";
-	private static final String langageCol = "Langage";
+	private static final String langageCol = "Language";
 	
 	public static boolean createCsvFile(ArrayList<Artist> artists) {
 		PrintWriter writer = null;
 		try{
-			  writer = new PrintWriter(new File(fileName));
+			  Date date = new Date();
+		      long timeMilli = date.getTime();
+			  writer = new PrintWriter(new File(fileName+" - "+timeMilli+".csv"));
 			  StringBuilder sb = new StringBuilder();
 			  sb.append(numberCol+",");
 			  sb.append(nameCol+",");
@@ -28,10 +31,8 @@ public class CsvExporter {
 			
 			  writer.write(sb.toString());
 			  writer.close();
-			  System.out.println("done !");
 			  
 	    } catch (FileNotFoundException e) {
-	      System.out.println(e.getMessage());
 	      return false;
 	    }
 		return true;

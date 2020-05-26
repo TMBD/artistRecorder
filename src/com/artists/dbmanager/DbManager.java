@@ -38,12 +38,6 @@ public class DbManager {
 			"	"+LANGAGE+"	VARCHAR(200) NOT NULL, "
 					+ "UNIQUE("+LANGAGE+"));";
 	
-	private final static String ARTIST_NAME_UNIQUE_CONSTRAINT = "ALTER TABLE " +ARTISTS_TB+ " ADD CONSTRAINT UNIQUE ("+NAME+");";
-	
-	private final static String ARTIST_NUMBER_UNIQUE_CONSTRAINT = "ALTER TABLE " +ARTISTS_TB+ " ADD CONSTRAINT UNIQUE ("+NUMBER+");";
-	
-	private final static String LANGAGE_LANG_UNIQUE_CONSTRAINT = "ALTER TABLE " +LANGAGES_TB+ " ADD CONSTRAINT UNIQUE ("+LANGAGE+");";
-	
 	private static String getDbSelector(String whatToSelect, String tableName, String conditionClause) {
 		return "SELECT " + whatToSelect + " FROM " + tableName + " WHERE " + conditionClause+" ;";
 	}
@@ -67,34 +61,25 @@ public class DbManager {
 	private static boolean openConnectionToDb() {
 		try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver" );
-            //System.out.println("class ok");
         }catch (Exception e) {
-            System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
-            e.printStackTrace();
-            //System.out.println("connection broblem");
             return false;
         }
         try {
             connexion = DriverManager.getConnection("jdbc:hsqldb:file:DATABASE/"+ARTISTS_DB+";ifexists=true", "SA", "");
         } catch (SQLException ex) {
             Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("ERROR: Can't connect.");
             return false;
         }
-        System.out.println("Connection opened.");
         return true;
 	}
 	
 	private static boolean closeConnectionToBd(){
         try {
             connexion.close();
-            //System.out.println("fermeture ok");
         } catch (SQLException ex) {
             Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("fermeture broblem");
             return false;
         }
-        System.out.println("Connection closed.");
         return true;
     }
 	
@@ -109,31 +94,19 @@ public class DbManager {
 	public static boolean createDb() {
 		try {
             Class.forName("org.hsqldb.jdbc.JDBCDriver" );
-            //System.out.println("class ok");
         }catch (Exception e) {
-            System.err.println("ERROR: failed to load HSQLDB JDBC driver.");
-            e.printStackTrace();
             return false;
         }
         try {
             connexion = DriverManager.getConnection("jdbc:hsqldb:file:DATABASE/"+ARTISTS_DB, "SA", "");
-//            boolean succededQueryForLangagesTable = dbExecuter(TABLE_LANGAGES_CREATER);
-//            if(succededQueryForLangagesTable) dbExecuter(TABLE_ARTISTS_CREATER);
         } catch (SQLException ex) {
             Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("ERROR: Can't create db.");
             return false;
         }
-        System.out.println("Db created.");
         closeConnectionToBd();
-        //boolean succededQueryForArtistsTable = false;
         boolean succededQueryForLangagesTable = dbExecuter(TABLE_LANGAGES_CREATER);
         
         if(succededQueryForLangagesTable) return dbExecuter(TABLE_ARTISTS_CREATER);
-//        if(succededQueryForArtistsTable) 
-//        	return dbExecuter(ARTIST_NAME_UNIQUE_CONSTRAINT) 
-//        			&& dbExecuter(ARTIST_NUMBER_UNIQUE_CONSTRAINT) 
-//        			&& dbExecuter(LANGAGE_LANG_UNIQUE_CONSTRAINT);
         return false;
 	}
 	
@@ -150,7 +123,6 @@ public class DbManager {
             
         } catch (SQLException ex) {
             Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-            System.err.println("dbExecuter probleme");
             return false;
         }
 		return true;
@@ -239,7 +211,6 @@ public class DbManager {
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -261,7 +232,6 @@ public class DbManager {
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -282,7 +252,6 @@ public class DbManager {
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -305,7 +274,6 @@ public class DbManager {
 			return allArtists;
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -325,7 +293,6 @@ public class DbManager {
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -345,7 +312,6 @@ public class DbManager {
 			}
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
@@ -368,7 +334,6 @@ public class DbManager {
 			return allLangages;
 		} catch (SQLException ex) {
 			Logger.getLogger(DbManager.class.getName()).log(Level.SEVERE, null, ex);
-			ex.printStackTrace();
 		}
             
     	return null;
